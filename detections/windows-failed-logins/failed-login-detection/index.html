@@ -1,0 +1,1321 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../suspicious-powershell/suspicious-powershell-detection/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Windows Failed Login Brute-Force Detection - SOC Home Lab</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#windows-failed-login-brute-force-detection" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SOC Home Lab" class="md-header__button md-logo" aria-label="SOC Home Lab" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SOC Home Lab
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Windows Failed Login Brute-Force Detection
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SOC Home Lab" class="md-nav__button md-logo" aria-label="SOC Home Lab" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SOC Home Lab
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOC Home Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Page
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Detections
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Detections
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Suspicious account changes
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Suspicious account changes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../suspicious-account-changes/suspicious-account-changes-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Suspicious User Account and Privilege Changes Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Suspicious powershell
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Suspicious powershell
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../suspicious-powershell/suspicious-powershell-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Suspicious PowerShell Execution Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Windows failed logins
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Windows failed logins
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Windows Failed Login Brute-Force Detection
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Windows Failed Login Brute-Force Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-detection-objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Detection Objective
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-log-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Log Sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-detection-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Detection Logic
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Detection Logic">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#correlation-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Correlation Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-mitre-attck-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. MITRE ATT&amp;CK Mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-severity-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Severity Classification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-sample-event-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Sample Event Details
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Sample Event Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#event-id-4625-failed-logon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event ID 4625 – Failed Logon
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#event-id-4624-successful-logon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event ID 4624 – Successful Logon
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-false-positives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. False Positives
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. False Positives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reduction-techniques" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reduction Techniques
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-investigation-playbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Investigation Playbook
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-response-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Response Actions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Response Actions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#immediate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Immediate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#follow-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Follow-up
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-detection-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Detection Limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-improvement-ideas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Improvement Ideas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-lessons-learned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Lessons Learned
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-detection-objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Detection Objective
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-log-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Log Sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-detection-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Detection Logic
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Detection Logic">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#correlation-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Correlation Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-mitre-attck-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. MITRE ATT&amp;CK Mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-severity-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Severity Classification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-sample-event-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Sample Event Details
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Sample Event Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#event-id-4625-failed-logon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event ID 4625 – Failed Logon
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#event-id-4624-successful-logon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event ID 4624 – Successful Logon
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-false-positives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. False Positives
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. False Positives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reduction-techniques" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reduction Techniques
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-investigation-playbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Investigation Playbook
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-response-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Response Actions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Response Actions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#immediate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Immediate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#follow-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Follow-up
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-detection-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Detection Limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-improvement-ideas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Improvement Ideas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-lessons-learned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Lessons Learned
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="windows-failed-login-brute-force-detection">Windows Failed Login Brute-Force Detection</h1>
+<h2 id="1-overview">1. Overview</h2>
+<p>This detection identifies potential brute-force authentication attempts against Windows systems by analyzing repeated failed login events. Brute-force attacks are commonly used by attackers to gain initial access to corporate environments.</p>
+<p>This detection is designed for a SOC environment and focuses on accuracy, investigation context, and response readiness.</p>
+<hr />
+<h2 id="2-detection-objective">2. Detection Objective</h2>
+<ul>
+<li>Identify repeated failed login attempts</li>
+<li>Detect possible password guessing or brute-force attacks</li>
+<li>Enable analysts to respond before account compromise occurs</li>
+</ul>
+<hr />
+<h2 id="3-log-sources">3. Log Sources</h2>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows Security Log</td>
+<td>Authentication events</td>
+</tr>
+<tr>
+<td>Sysmon (Optional)</td>
+<td>Process context for lateral movement</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Required Event IDs:</strong>
+- <strong>4625</strong> – An account failed to log on
+- <strong>4624</strong> – An account was successfully logged on</p>
+<hr />
+<h2 id="4-detection-logic">4. Detection Logic</h2>
+<p>Trigger an alert when:
+- 5 or more <strong>Event ID 4625</strong>
+- From the same source IP address
+- Targeting the same user account
+- Within a 5-minute time window</p>
+<h3 id="correlation-logic">Correlation Logic</h3>
+<ul>
+<li>If <strong>4624</strong> occurs shortly after multiple <strong>4625</strong> events for the same user → <strong>High severity</strong></li>
+<li>If failures target multiple users → <strong>Password spray behavior</strong></li>
+</ul>
+<hr />
+<h2 id="5-mitre-attck-mapping">5. MITRE ATT&amp;CK Mapping</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Technique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Credential Access</td>
+<td><strong>T1110 – Brute Force</strong></td>
+</tr>
+<tr>
+<td>Initial Access</td>
+<td>Valid Accounts</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-severity-classification">6. Severity Classification</h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Multiple failures, no success</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>Failures followed by success</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Internal service account</td>
+<td>Low (possible false positive)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-sample-event-details">7. Sample Event Details</h2>
+<h3 id="event-id-4625-failed-logon">Event ID 4625 – Failed Logon</h3>
+<p>Common fields:
+- <code>AccountName</code>
+- <code>IpAddress</code>
+- <code>LogonType</code>
+- <code>FailureReason</code></p>
+<h3 id="event-id-4624-successful-logon">Event ID 4624 – Successful Logon</h3>
+<p>Used to confirm:
+- Account compromise
+- Successful brute-force attempts</p>
+<hr />
+<h2 id="8-false-positives">8. False Positives</h2>
+<p>Possible benign causes:
+- User forgot password
+- Misconfigured services
+- Vulnerability scanners
+- Password expiration events</p>
+<h3 id="reduction-techniques">Reduction Techniques</h3>
+<ul>
+<li>Exclude known service accounts</li>
+<li>Ignore internal vulnerability scanning IPs</li>
+<li>Raise threshold for internal traffic</li>
+</ul>
+<hr />
+<h2 id="9-investigation-playbook">9. Investigation Playbook</h2>
+<p>Analyst steps:
+1. Identify affected user account
+2. Review source IP reputation
+3. Check if login eventually succeeded
+4. Review recent password changes
+5. Check for lateral movement indicators</p>
+<hr />
+<h2 id="10-response-actions">10. Response Actions</h2>
+<h3 id="immediate">Immediate</h3>
+<ul>
+<li>Disable or lock affected account</li>
+<li>Block source IP (if external)</li>
+<li>Force password reset</li>
+</ul>
+<h3 id="follow-up">Follow-up</h3>
+<ul>
+<li>Review account activity</li>
+<li>Check for persistence mechanisms</li>
+<li>Document incident findings</li>
+</ul>
+<hr />
+<h2 id="11-detection-limitations">11. Detection Limitations</h2>
+<ul>
+<li>Cannot detect very slow brute-force attempts</li>
+<li>Password spraying across long time windows may evade detection</li>
+<li>VPN usage may mask attacker IPs</li>
+</ul>
+<hr />
+<h2 id="12-improvement-ideas">12. Improvement Ideas</h2>
+<ul>
+<li>Add GeoIP-based detection</li>
+<li>Combine with MFA failure logs</li>
+<li>Add behavioral baselines per user</li>
+</ul>
+<hr />
+<h2 id="13-lessons-learned">13. Lessons Learned</h2>
+<ul>
+<li>Authentication logs are critical for early detection</li>
+<li>Correlation between failures and successes improves confidence</li>
+<li>Context reduces alert fatigue in SOC environments</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
